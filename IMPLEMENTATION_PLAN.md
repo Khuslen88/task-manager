@@ -25,9 +25,9 @@
 - [x] Add tests for remaining commands
 
 ## Phase 4: Polish
-- [ ] Add error handling for all edge cases
-- [ ] Add colored output
-- [ ] Add --help documentation
+- [x] Add error handling for all edge cases
+- [x] Add colored output
+- [x] Add --help documentation
 
 ## Progress Log
 | Date | Task | Status | Notes |

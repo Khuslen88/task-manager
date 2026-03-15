@@ -30,6 +30,17 @@ def test_add_task_with_options(runner):
     assert tasks[0].due_date == "2026-04-01"
 
 
+def test_add_empty_title_fails(runner):
+    result = runner.invoke(cli, ["add", "   "])
+    assert result.exit_code != 0
+    assert "empty" in result.output.lower()
+
+
+def test_add_invalid_due_date(runner):
+    result = runner.invoke(cli, ["add", "Test", "--due", "April 1st"])
+    assert result.exit_code != 0
+
+
 def test_list_empty(runner):
     result = runner.invoke(cli, ["list"])
     assert "No tasks found" in result.output
@@ -60,6 +71,13 @@ def test_done_marks_task(runner):
     assert tasks[0].status == "done"
 
 
+def test_done_already_done(runner):
+    runner.invoke(cli, ["add", "Task"])
+    runner.invoke(cli, ["done", "1"])
+    result = runner.invoke(cli, ["done", "1"])
+    assert "already done" in result.output
+
+
 def test_done_unknown_id(runner):
     result = runner.invoke(cli, ["done", "99"])
     assert "not found" in result.output
@@ -67,9 +85,14 @@ def test_done_unknown_id(runner):
 
 def test_delete_task(runner):
     runner.invoke(cli, ["add", "Temp task"])
-    result = runner.invoke(cli, ["delete", "1"])
+    result = runner.invoke(cli, ["delete", "1", "--yes"])
     assert "Deleted task 1" in result.output
     assert storage.load_tasks() == []
+
+
+def test_delete_unknown_id(runner):
+    result = runner.invoke(cli, ["delete", "99", "--yes"])
+    assert "not found" in result.output
 
 
 def test_edit_task(runner):
@@ -77,6 +100,12 @@ def test_edit_task(runner):
     result = runner.invoke(cli, ["edit", "1", "--title", "New title"])
     assert "Updated task 1" in result.output
     assert storage.load_tasks()[0].title == "New title"
+
+
+def test_edit_no_fields_fails(runner):
+    runner.invoke(cli, ["add", "Task"])
+    result = runner.invoke(cli, ["edit", "1"])
+    assert result.exit_code != 0
 
 
 def test_search_finds_match(runner):
@@ -91,3 +120,8 @@ def test_search_no_match(runner):
     runner.invoke(cli, ["add", "Buy groceries"])
     result = runner.invoke(cli, ["search", "python"])
     assert "No matching tasks" in result.output
+
+
+def test_search_empty_keyword_fails(runner):
+    result = runner.invoke(cli, ["search", "  "])
+    assert result.exit_code != 0
