@@ -1,723 +1,1133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tasks</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tasks</title>
+<style>
+/* ── Apple HIG Design System ─────────────────────────────── */
+:root {
+  --blue:#007AFF; --green:#34C759; --orange:#FF9500;
+  --red:#FF3B30;  --purple:#AF52DE; --teal:#5AC8FA;
+  --bg:#F2F2F7;   --surface:#FFFFFF; --surface2:#F2F2F7;
+  --sep:#C6C6C8;  --text:#000000;   --text2:#3C3C43;
+  --text3:#8E8E93; --fill:#EBEBF0;
+  --r:12px; --r-sm:8px; --r-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.08);
+  --shadow-md:0 4px 16px rgba(0,0,0,.12);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased}
+button{font-family:var(--font);cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:var(--font);font-size:15px}
 
-    :root {
-      --bg:       #f5f0eb;
-      --white:    #ffffff;
-      --dark:     #1a1a1a;
-      --muted:    #9a9a9a;
-      --border:   #ede8e2;
-      --pink:     #e8697d;
-      --orange:   #f5a623;
-      --mint:     #d4edda;
-      --mint-dark:#3a7d52;
-      --purple:   #7c6fef;
-      --radius:   16px;
-    }
+/* ── Layout ────────────────────────────────────────────── */
+.app{display:flex;min-height:100vh}
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--dark);
-      min-height: 100vh;
-      display: flex;
-    }
+.sidebar{
+  width:260px;min-width:260px;background:var(--surface);
+  border-right:1px solid var(--sep);padding:20px 0;
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
 
-    /* ── Icon rail ──────────────────────────── */
-    .icon-rail {
-      width: 64px;
-      background: var(--dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 0;
-      gap: 8px;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      z-index: 10;
-    }
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:4px 20px 20px;border-bottom:1px solid var(--sep);margin-bottom:12px}
+.logo-mark{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;font-weight:700}
+.logo-name{font-size:1.05rem;font-weight:700}
 
-    .rail-logo {
-      width: 36px; height: 36px;
-      background: white;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      margin-bottom: 16px;
-    }
+.sidebar-section{padding:0 12px;margin-bottom:8px}
+.sidebar-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;padding:0 8px;margin-bottom:4px;display:block}
 
-    .rail-btn {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      color: #666;
-      font-size: 1.1rem;
-      transition: background .15s, color .15s;
-    }
+.nav-btn{
+  display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;
+  border-radius:var(--r-sm);font-size:14px;font-weight:500;color:var(--text2);
+  transition:background .12s,color .12s;text-align:left;
+}
+.nav-btn:hover{background:var(--fill)}
+.nav-btn.active{background:var(--blue);color:white}
+.nav-btn.active .nav-icon{opacity:1}
+.nav-icon{font-size:1rem;width:20px;text-align:center;opacity:.7}
+.nav-badge{margin-left:auto;font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--fill);color:var(--text3)}
+.nav-btn.active .nav-badge{background:rgba(255,255,255,.25);color:white}
 
-    .rail-btn:hover, .rail-btn.active { background: rgba(255,255,255,.1); color: white; }
-    .rail-help { margin-top: auto; }
+.sidebar-divider{height:1px;background:var(--sep);margin:8px 12px}
 
-    /* ── Left sidebar ───────────────────────── */
-    .sidebar {
-      width: 220px;
-      background: var(--white);
-      border-right: 1px solid var(--border);
-      position: fixed;
-      top: 0; left: 64px; bottom: 0;
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      overflow-y: auto;
-    }
+/* ── Main ───────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
 
-    .sidebar-title {
-      font-size: 1rem;
-      font-weight: 700;
-      padding-left: 4px;
-    }
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--sep);
+  padding:12px 28px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:100;
+}
 
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
+.view-tabs{display:flex;gap:2px;background:var(--fill);border-radius:var(--r-sm);padding:3px}
+.view-tab{
+  padding:5px 14px;border-radius:6px;font-size:13px;font-weight:500;
+  color:var(--text3);transition:all .15s;
+}
+.view-tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
 
-    .nav-section { display: flex; flex-direction: column; gap: 2px; }
-    .nav-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); padding: 0 8px; margin-bottom: 4px; letter-spacing: .04em; text-transform: uppercase; }
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 
-    .nav-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      color: #555;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      transition: all .15s;
-    }
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text2);font-size:1.05rem;transition:background .12s;position:relative;
+}
+.icon-btn:hover{background:var(--fill)}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  background:var(--red);border-radius:50%;border:1.5px solid var(--surface);
+}
 
-    .nav-item:hover { background: var(--bg); color: var(--dark); }
-    .nav-item.active { background: var(--dark); color: white; }
-    .nav-item.active .nav-count { background: rgba(255,255,255,.2); color: white; }
+.add-task-btn{
+  background:var(--blue);color:white;border-radius:var(--r-sm);
+  padding:7px 16px;font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:6px;transition:opacity .12s;
+}
+.add-task-btn:hover{opacity:.88}
 
-    .nav-count {
-      background: var(--bg);
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      color: var(--muted);
-    }
+.content{padding:28px;flex:1;min-width:0}
 
-    .add-link {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.82rem;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 8px;
-      transition: color .15s;
-      border: none;
-      background: none;
-    }
+/* ── Cards ──────────────────────────────────────────────── */
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--sep);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:15px;font-weight:600}
 
-    .add-link:hover { color: var(--dark); }
+/* ── Stats ──────────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+.stat-num{font-size:2rem;font-weight:700;line-height:1}
+.stat-label{font-size:12px;color:var(--text3);margin-top:4px;font-weight:500}
+.stat-card.blue .stat-num{color:var(--blue)}
+.stat-card.green .stat-num{color:var(--green)}
+.stat-card.orange .stat-num{color:var(--orange)}
+.stat-card.red .stat-num{color:var(--red)}
 
-    /* ── Main ───────────────────────────────── */
-    .main {
-      margin-left: 284px;
-      flex: 1;
-      padding: 32px 36px;
-      min-height: 100vh;
-    }
+/* ── Progress bar ───────────────────────────────────────── */
+.progress-bar{height:8px;background:var(--fill);border-radius:999px;overflow:hidden;margin-top:12px}
+.progress-fill{height:100%;background:var(--green);border-radius:999px;transition:width .4s ease}
 
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
+/* ── List view ──────────────────────────────────────────── */
+.task-table{width:100%;border-collapse:collapse}
+.task-table th{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:10px 16px;text-align:left;border-bottom:1px solid var(--sep)}
+.task-row-item{transition:background .1s;cursor:pointer}
+.task-row-item:hover td{background:#F8F8FF}
+.task-row-item td{padding:12px 16px;border-bottom:1px solid var(--sep);vertical-align:middle}
+.task-row-item.done-row td{opacity:.5}
 
-    .today { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+/* ── Badges ─────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-high{background:#FFF0EE;color:var(--red)}
+.badge-medium{background:#FFF5E6;color:var(--orange)}
+.badge-low{background:#F0FFF4;color:var(--green)}
+.badge-todo{background:#EFF6FF;color:var(--blue)}
+.badge-in_progress{background:#FFF8E6;color:var(--orange)}
+.badge-done{background:#F0FFF4;color:var(--green)}
 
-    .avatar {
-      width: 36px; height: 36px;
-      background: var(--pink);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
+.tag-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:500;background:var(--fill);color:var(--text2);margin:0 2px}
 
-    /* ── Welcome banner ─────────────────────── */
-    .banner {
-      background: var(--mint);
-      border-radius: var(--radius);
-      padding: 28px 32px;
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      overflow: hidden;
-      position: relative;
-    }
+.assignee-avatar{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--blue);color:white;
+  font-size:10px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;
+}
 
-    .banner-text p { font-size: 0.9rem; color: var(--mint-dark); margin-bottom: 6px; }
-    .banner-text h2 { font-size: 1.7rem; font-weight: 800; color: var(--dark); line-height: 1.1; }
+.check-circle{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--sep);
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;font-size:10px;color:white;
+}
+.check-circle:hover{border-color:var(--green)}
+.check-circle.checked{background:var(--green);border-color:var(--green)}
 
-    .banner-btn {
-      margin-top: 18px;
-      background: var(--dark);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 22px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: opacity .15s;
-    }
+/* ── Kanban ─────────────────────────────────────────────── */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+.kanban-col{background:var(--fill);border-radius:var(--r);padding:16px;min-height:400px}
+.kanban-col-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.kanban-col-title{font-size:13px;font-weight:600}
+.kanban-col-count{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--surface);color:var(--text3)}
+.kanban-col.drag-over{outline:2px dashed var(--blue);outline-offset:-2px}
 
-    .banner-btn:hover { opacity: .85; }
+.kanban-card{
+  background:var(--surface);border-radius:var(--r-sm);padding:14px;
+  box-shadow:var(--shadow);margin-bottom:10px;cursor:pointer;
+  transition:box-shadow .15s,transform .15s;
+  animation:slideUp .2s ease;
+}
+.kanban-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.kanban-card[draggable]{cursor:grab}
+.kanban-card[draggable]:active{cursor:grabbing;opacity:.7}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-    .banner-art {
-      font-size: 4rem;
-      opacity: .35;
-      position: absolute;
-      right: 32px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
+.kanban-card-title{font-size:13px;font-weight:600;margin-bottom:8px;line-height:1.3}
+.kanban-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.col-todo .kanban-col-count{background:#EFF6FF;color:var(--blue)}
+.col-in_progress .kanban-col-count{background:#FFF8E6;color:var(--orange)}
+.col-done .kanban-col-count{background:#F0FFF4;color:var(--green)}
 
-    /* ── Stats row ──────────────────────────── */
-    .stats {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-    }
+/* ── Calendar ───────────────────────────────────────────── */
+.calendar-nav{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.cal-month{font-size:1.1rem;font-weight:700}
+.cal-arrow{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--blue);transition:background .12s}
+.cal-arrow:hover{background:var(--fill)}
 
-    .stat {
-      flex: 1;
-      min-width: 120px;
-    }
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-name{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:8px 0;text-transform:uppercase;letter-spacing:.04em}
+.cal-day{
+  min-height:80px;border-radius:var(--r-sm);padding:6px;
+  background:var(--surface);cursor:pointer;transition:background .1s;position:relative;
+}
+.cal-day:hover{background:#F0F7FF}
+.cal-day.other-month{background:var(--fill);opacity:.5}
+.cal-day.today{outline:2px solid var(--blue)}
+.cal-day.selected{background:#EFF6FF}
+.cal-day-num{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.cal-day.today .cal-day-num{color:var(--blue)}
+.cal-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin:1px}
+.cal-dot.high{background:var(--red)}
+.cal-dot.medium{background:var(--orange)}
+.cal-dot.low{background:var(--green)}
 
-    .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
-    .stat-value { font-size: 1.5rem; font-weight: 800; }
+/* ── Detail Panel ───────────────────────────────────────── */
+.panel-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.panel-overlay.open{opacity:1;pointer-events:all}
 
-    /* ── Two-column grid ────────────────────── */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1.1fr;
-      gap: 24px;
-    }
+.detail-panel{
+  position:fixed;top:0;right:0;bottom:0;width:420px;
+  background:var(--surface);box-shadow:-4px 0 24px rgba(0,0,0,.15);
+  z-index:201;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.detail-panel.open{transform:translateX(0)}
 
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--sep);display:flex;align-items:center;gap:12px}
+.panel-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:1.1rem;transition:background .12s}
+.panel-close:hover{background:var(--fill)}
+.panel-status-btn{
+  margin-left:auto;padding:5px 12px;border-radius:999px;
+  font-size:12px;font-weight:600;border:1px solid var(--sep);
+  background:var(--surface);color:var(--text2);transition:all .12s;
+}
+.panel-status-btn:hover{border-color:var(--blue);color:var(--blue)}
 
-    .section-title { font-size: 1rem; font-weight: 700; }
-    .view-all { font-size: 0.8rem; color: var(--muted); cursor: pointer; border: none; background: none; font-family: 'Inter', sans-serif; }
-    .view-all:hover { color: var(--dark); }
+.panel-body{padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
 
-    /* ── Priority cards ─────────────────────── */
-    .priority-cards { display: flex; flex-direction: column; gap: 12px; }
+.panel-title-input{
+  font-size:1.1rem;font-weight:700;border:none;outline:none;
+  width:100%;padding:4px 0;border-bottom:2px solid transparent;
+  transition:border-color .15s;background:none;
+}
+.panel-title-input:focus{border-bottom-color:var(--blue)}
 
-    .p-card {
-      border-radius: var(--radius);
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform .15s;
-    }
+.field-row{display:flex;align-items:center;gap:12px}
+.field-label{font-size:12px;font-weight:600;color:var(--text3);width:80px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+.field-value{flex:1}
 
-    .p-card:hover { transform: translateY(-2px); }
-    .p-card.high   { background: linear-gradient(135deg, #e8697d, #d94f65); color: white; }
-    .p-card.medium { background: linear-gradient(135deg, #f5a623, #e8940e); color: white; }
-    .p-card.low    { background: linear-gradient(135deg, #6bcc8f, #4ab870); color: white; }
+.panel-select{
+  border:1px solid var(--sep);border-radius:var(--r-sm);padding:6px 10px;
+  font-size:13px;width:100%;background:var(--surface);outline:none;
+  transition:border-color .15s;
+}
+.panel-select:focus{border-color:var(--blue)}
 
-    .p-card-label { font-size: 0.75rem; font-weight: 600; opacity: .8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
-    .p-card-count { font-size: 2rem; font-weight: 800; }
-    .p-card-sub   { font-size: 0.78rem; opacity: .75; margin-top: 2px; }
+.panel-input{
+  border:1px solid var(--sep);border-radius:var(--r-sm);padding:6px 10px;
+  font-size:13px;width:100%;outline:none;background:var(--surface);
+  transition:border-color .15s;
+}
+.panel-input:focus{border-color:var(--blue)}
 
-    .p-card-icon {
-      position: absolute;
-      right: 16px; top: 50%;
-      transform: translateY(-50%);
-      font-size: 2.2rem;
-      opacity: .25;
-    }
+.panel-textarea{
+  border:1px solid var(--sep);border-radius:var(--r-sm);padding:8px 10px;
+  font-size:13px;width:100%;outline:none;background:var(--surface);
+  resize:vertical;min-height:80px;line-height:1.5;transition:border-color .15s;
+}
+.panel-textarea:focus{border-color:var(--blue)}
 
-    /* ── Task list panel ────────────────────── */
-    .task-panel {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
+.tags-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag-input{border:1px dashed var(--sep);border-radius:5px;padding:3px 8px;font-size:12px;outline:none;width:90px;background:none;transition:border-color .15s}
+.tag-input:focus{border-color:var(--blue)}
+.tag-remove{font-size:10px;margin-left:4px;cursor:pointer;color:var(--text3);opacity:.7}
+.tag-remove:hover{opacity:1;color:var(--red)}
 
-    /* Add task inline */
-    .inline-add {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
+.comments-section{border-top:1px solid var(--sep);padding-top:14px}
+.comments-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.comment-item{display:flex;gap:10px;margin-bottom:12px}
+.comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--purple);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.comment-bubble{background:var(--fill);border-radius:0 var(--r-sm) var(--r-sm) var(--r-sm);padding:8px 12px;flex:1}
+.comment-author{font-size:11px;font-weight:600;margin-bottom:3px}
+.comment-text{font-size:13px;line-height:1.4}
+.comment-at{font-size:10px;color:var(--text3);margin-top:4px}
+.comment-mention{color:var(--blue);font-weight:600}
 
-    .inline-add input[name="title"] {
-      flex: 1;
-      min-width: 140px;
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: border-color .2s;
-    }
+.comment-form{display:flex;gap:8px;margin-top:8px}
+.comment-input{flex:1;border:1px solid var(--sep);border-radius:var(--r-sm);padding:7px 10px;font-size:13px;outline:none;transition:border-color .15s}
+.comment-input:focus{border-color:var(--blue)}
+.comment-submit{background:var(--blue);color:white;border-radius:var(--r-sm);padding:7px 14px;font-size:12px;font-weight:600;transition:opacity .12s}
+.comment-submit:hover{opacity:.85}
 
-    .inline-add input[name="title"]:focus { border-color: var(--purple); }
+.panel-save-btn{
+  background:var(--blue);color:white;border-radius:var(--r-sm);padding:10px;
+  font-size:14px;font-weight:600;transition:opacity .12s;width:100%;
+}
+.panel-save-btn:hover{opacity:.88}
+.panel-delete-btn{
+  background:none;border:1px solid var(--sep);color:var(--red);border-radius:var(--r-sm);
+  padding:10px;font-size:14px;font-weight:600;transition:all .12s;width:100%;
+}
+.panel-delete-btn:hover{background:var(--red);color:white;border-color:var(--red)}
 
-    .inline-add select,
-    .inline-add input[type="date"] {
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      padding: 8px 10px;
-      font-size: 0.8rem;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      background: white;
-      cursor: pointer;
-    }
+/* ── Add task modal ─────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:var(--r-lg);padding:24px;width:480px;box-shadow:var(--shadow-md);animation:popIn .2s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-size:1rem;font-weight:700;margin-bottom:20px}
 
-    .add-task-btn {
-      background: var(--dark);
-      color: white;
-      border: none;
-      border-radius: 9px;
-      padding: 8px 16px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      white-space: nowrap;
-      transition: opacity .15s;
-    }
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.form-input{
+  border:1px solid var(--sep);border-radius:var(--r-sm);padding:9px 12px;
+  font-size:14px;width:100%;outline:none;transition:border-color .15s;
+}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,.12)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-actions{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{flex:1;padding:10px;border-radius:var(--r-sm);background:var(--fill);color:var(--text2);font-size:14px;font-weight:600;transition:background .12s}
+.btn-cancel:hover{background:var(--sep)}
+.btn-submit{flex:2;padding:10px;border-radius:var(--r-sm);background:var(--blue);color:white;font-size:14px;font-weight:600;transition:opacity .12s}
+.btn-submit:hover{opacity:.88}
 
-    .add-task-btn:hover { opacity: .8; }
-    .error-msg { color: var(--pink); font-size: 0.78rem; margin-bottom: 10px; }
+.notif-toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.85);color:white;padding:10px 20px;border-radius:999px;
+  font-size:13px;font-weight:500;z-index:400;opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.notif-toast.show{opacity:1}
 
-    /* Task rows */
-    .task-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-      transition: opacity .2s;
-      animation: fadeIn .2s ease;
-    }
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:2.5rem;margin-bottom:10px}
 
-    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-
-    .task-row:last-child { border-bottom: none; }
-    .task-row.done { opacity: .4; }
-
-    .status-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dot-high   { background: var(--pink); }
-    .dot-medium { background: var(--orange); }
-    .dot-low    { background: #6bcc8f; }
-
-    .task-row-body { flex: 1; min-width: 0; }
-
-    .task-row-title {
-      font-size: 0.875rem;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .task-row.done .task-row-title { text-decoration: line-through; color: var(--muted); }
-
-    .task-row-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-
-    .status-badge {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    .badge-todo { background: #f0edff; color: var(--purple); }
-    .badge-done { background: #e6f9ef; color: var(--mint-dark); }
-
-    .row-check {
-      width: 18px; height: 18px;
-      border-radius: 5px;
-      border: 2px solid var(--border);
-      background: none;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem;
-      transition: all .15s;
-      flex-shrink: 0;
-    }
-
-    .row-check:hover { border-color: #6bcc8f; }
-    .row-check.checked { background: #6bcc8f; border-color: #6bcc8f; color: white; }
-
-    .row-delete {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 0.75rem;
-      padding: 4px 6px;
-      border-radius: 6px;
-      opacity: 0;
-      transition: all .15s;
-    }
-
-    .task-row:hover .row-delete { opacity: 1; }
-    .row-delete:hover { color: var(--pink); background: rgba(232,105,125,.08); }
-
-    .empty-tasks {
-      text-align: center;
-      padding: 32px 0;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .add-new-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding-top: 14px;
-      color: var(--muted);
-      font-size: 0.82rem;
-      cursor: pointer;
-      border: 1.5px dashed var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 12px;
-      justify-content: center;
-      transition: border-color .15s, color .15s;
-    }
-
-    .add-new-row:hover { border-color: var(--purple); color: var(--purple); }
-  </style>
+/* ── Notification panel ─────────────────────────────────── */
+.notif-panel{
+  position:absolute;top:44px;right:0;width:300px;
+  background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-md);
+  border:1px solid var(--sep);z-index:200;overflow:hidden;
+  display:none;
+}
+.notif-panel.open{display:block;animation:fadeDown .15s ease}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.notif-panel-header{padding:14px 16px;border-bottom:1px solid var(--sep);font-size:13px;font-weight:600}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--sep);font-size:13px;line-height:1.4}
+.notif-item:last-child{border-bottom:none}
+.notif-item-title{font-weight:600;margin-bottom:2px}
+.notif-item-sub{color:var(--text3);font-size:12px}
+.notif-toggle-row{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-size:13px;border-top:1px solid var(--sep)}
+.toggle-switch{
+  width:36px;height:20px;background:var(--sep);border-radius:10px;
+  position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;
+}
+.toggle-switch.on{background:var(--green)}
+.toggle-knob{
+  position:absolute;top:2px;left:2px;width:16px;height:16px;
+  background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch.on .toggle-knob{transform:translateX(16px)}
+</style>
 </head>
 <body>
-
-<!-- Icon rail -->
-<div class="icon-rail">
-  <div class="rail-logo">✦</div>
-  <div class="rail-btn active">🏠</div>
-  <div class="rail-btn">📁</div>
-  <div class="rail-btn">📅</div>
-  <div class="rail-btn">👤</div>
-  <div class="rail-btn rail-help">❓</div>
-</div>
+<div class="app">
 
 <!-- Sidebar -->
-<div class="sidebar">
-  <div class="sidebar-title">Space</div>
-
-  <div class="search-box">🔍 <span id="search-placeholder">Search for...</span>
-    <input id="search-input" style="border:none;background:none;outline:none;font-size:0.82rem;font-family:'Inter',sans-serif;width:100%;color:#333;" placeholder="Search..." />
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">T</div>
+    <span class="logo-name">Tasks</span>
   </div>
 
-  <div class="nav-section">
-    <div class="nav-label">Tasks</div>
-    <button class="nav-item active" onclick="setFilter(this,'')" data-status="">
-      All <span class="nav-count" id="nav-all">0</span>
+  <div class="sidebar-section">
+    <span class="sidebar-label">Views</span>
+    <button class="nav-btn" onclick="setView('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
     </button>
-    <button class="nav-item" onclick="setFilter(this,'todo')" data-status="todo">
-      In progress <span class="nav-count" id="nav-todo">0</span>
+    <button class="nav-btn" onclick="setView('list')">
+      <span class="nav-icon">☰</span> List
+      <span class="nav-badge" id="sb-all">0</span>
     </button>
-    <button class="nav-item" onclick="setFilter(this,'done')" data-status="done">
-      Done <span class="nav-count" id="nav-done">0</span>
+    <button class="nav-btn" onclick="setView('kanban')">
+      <span class="nav-icon">⬛</span> Board
     </button>
-    <button class="add-link" onclick="focusAdd()">⊕ Add a new task</button>
+    <button class="nav-btn" onclick="setView('calendar')">
+      <span class="nav-icon">📅</span> Calendar
+    </button>
   </div>
-</div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-label">Filter</span>
+    <button class="nav-btn" onclick="setStatusFilter('')">
+      <span class="nav-icon">◉</span> All tasks
+      <span class="nav-badge" id="sb-total">0</span>
+    </button>
+    <button class="nav-btn" onclick="setStatusFilter('todo')">
+      <span class="nav-icon" style="color:var(--blue)">○</span> To Do
+      <span class="nav-badge" id="sb-todo">0</span>
+    </button>
+    <button class="nav-btn" onclick="setStatusFilter('in_progress')">
+      <span class="nav-icon" style="color:var(--orange)">◑</span> In Progress
+      <span class="nav-badge" id="sb-inprogress">0</span>
+    </button>
+    <button class="nav-btn" onclick="setStatusFilter('done')">
+      <span class="nav-icon" style="color:var(--green)">●</span> Done
+      <span class="nav-badge" id="sb-done">0</span>
+    </button>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-label">Priority</span>
+    <button class="nav-btn" onclick="setPriorityFilter('high')">
+      <span class="nav-icon">🔴</span> High
+      <span class="nav-badge" id="sb-high">0</span>
+    </button>
+    <button class="nav-btn" onclick="setPriorityFilter('medium')">
+      <span class="nav-icon">🟡</span> Medium
+      <span class="nav-badge" id="sb-medium">0</span>
+    </button>
+    <button class="nav-btn" onclick="setPriorityFilter('low')">
+      <span class="nav-icon">🟢</span> Low
+      <span class="nav-badge" id="sb-low">0</span>
+    </button>
+  </div>
+</aside>
 
 <!-- Main -->
 <div class="main">
-  <div class="top-bar">
-    <div class="today" id="today-label">Today</div>
-    <div class="avatar">Me</div>
-  </div>
 
-  <!-- Banner -->
-  <div class="banner">
-    <div class="banner-text">
-      <p>Welcome back to your</p>
-      <h2>Daily task manager</h2>
-      <button class="banner-btn" onclick="focusAdd()">Start tracking</button>
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="view-tabs" id="view-tabs">
+      <button class="view-tab active" onclick="setView('dashboard')">Dashboard</button>
+      <button class="view-tab" onclick="setView('list')">List</button>
+      <button class="view-tab" onclick="setView('kanban')">Board</button>
+      <button class="view-tab" onclick="setView('calendar')">Calendar</button>
     </div>
-    <div class="banner-art">📋</div>
-  </div>
 
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Total tasks</div>
-      <div class="stat-value" id="stat-total">0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">In progress</div>
-      <div class="stat-value" id="stat-todo">0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Finished tasks</div>
-      <div class="stat-value" id="stat-done">0</div>
-    </div>
-  </div>
+    <!-- Search -->
+    <input id="search-input" placeholder="🔍  Search tasks…" style="border:1px solid var(--sep);border-radius:var(--r-sm);padding:6px 12px;font-size:13px;outline:none;width:200px;margin-left:16px;transition:border-color .15s" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--sep)'"/>
 
-  <!-- Grid -->
-  <div class="grid">
-
-    <!-- Priority cards -->
-    <div>
-      <div class="section-header">
-        <div class="section-title">By priority</div>
-      </div>
-      <div class="priority-cards">
-        <div class="p-card high" onclick="setFilterByPriority('high')">
-          <div class="p-card-label">High priority</div>
-          <div class="p-card-count" id="card-high">0</div>
-          <div class="p-card-sub">tasks need attention</div>
-          <div class="p-card-icon">🔥</div>
-        </div>
-        <div class="p-card medium" onclick="setFilterByPriority('medium')">
-          <div class="p-card-label">Medium priority</div>
-          <div class="p-card-count" id="card-medium">0</div>
-          <div class="p-card-sub">tasks in queue</div>
-          <div class="p-card-icon">⚡</div>
-        </div>
-        <div class="p-card low" onclick="setFilterByPriority('low')">
-          <div class="p-card-label">Low priority</div>
-          <div class="p-card-count" id="card-low">0</div>
-          <div class="p-card-sub">tasks when you can</div>
-          <div class="p-card-icon">🌿</div>
+    <div class="topbar-right">
+      <!-- Notification bell -->
+      <div style="position:relative">
+        <button class="icon-btn" id="notif-btn" onclick="toggleNotifPanel()">
+          🔔 <span class="notif-dot" id="notif-dot" style="display:none"></span>
+        </button>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-panel-header">Notifications</div>
+          <div id="notif-list"><div style="padding:16px;color:var(--text3);font-size:13px">No notifications</div></div>
+          <div class="notif-toggle-row">
+            <span>Enable notifications</span>
+            <div class="toggle-switch" id="notif-toggle" onclick="toggleNotifications()">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <button class="add-task-btn" onclick="openAddModal()">＋ New Task</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content"></div>
+</div><!-- /main -->
+
+</div><!-- /app -->
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="add-modal" onclick="e => e.target===this && closeAddModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">New Task</div>
+
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="m-title" placeholder="What needs to be done?" autocomplete="off"/>
     </div>
 
-    <!-- Daily tasks -->
-    <div class="task-panel">
-      <div class="section-header">
-        <div class="section-title" id="panel-title">Daily tasks</div>
-      </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="m-desc" rows="2" placeholder="Add details…" style="resize:vertical"></textarea>
+    </div>
 
-      <!-- Add form -->
-      <div class="inline-add">
-        <input name="title" id="task-title-input" placeholder="New task title…" autocomplete="off" />
-        <input type="date" name="due" id="task-due-input" />
-        <select name="priority" id="task-priority-input">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Assignee</label>
+        <input class="form-input" id="m-assignee" placeholder="Name…"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <input class="form-input" id="m-due" type="date"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-input" id="m-priority">
           <option value="low">🟢 Low</option>
           <option value="medium" selected>🟡 Medium</option>
           <option value="high">🔴 High</option>
         </select>
-        <button class="add-task-btn" id="add-btn">+ Add</button>
       </div>
-      <div class="error-msg" id="add-error"></div>
-
-      <!-- Task list -->
-      <div id="task-list"></div>
-
-      <div class="add-new-row" onclick="focusAdd()">⊕ Add a new task</div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="m-status">
+          <option value="todo">To Do</option>
+          <option value="in_progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
     </div>
 
+    <div class="form-group">
+      <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(comma separated)</span></label>
+      <input class="form-input" id="m-tags" placeholder="design, backend, urgent…"/>
+    </div>
+
+    <div id="m-error" style="color:var(--red);font-size:12px;margin-top:-8px;margin-bottom:8px;display:none"></div>
+
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitNewTask()">Create Task</button>
+    </div>
   </div>
 </div>
 
+<!-- Detail Panel -->
+<div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="panel-header">
+    <button class="panel-close" onclick="closePanel()">✕</button>
+    <span style="font-size:13px;font-weight:600;color:var(--text3)" id="panel-id-label">#1</span>
+    <button class="panel-status-btn" id="panel-status-btn" onclick="cycleStatus()">To Do</button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+
+<!-- Toast -->
+<div class="notif-toast" id="toast"></div>
+
 <script>
-  let currentStatus = "";
-  let currentPriority = "";
-  let searchQuery = "";
+// ── State ──────────────────────────────────────────────────────────────────
+const S = {
+  view: 'dashboard',
+  all: [],
+  filter: { status: '', priority: '' },
+  search: '',
+  selectedId: null,
+  notifEnabled: localStorage.getItem('notif') === '1',
+  calDate: new Date(),
+  draggingId: null,
+};
 
-  // Set today's date
-  const now = new Date();
-  document.getElementById("today-label").textContent =
-    now.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+// ── API ────────────────────────────────────────────────────────────────────
+const api = {
+  list: (p={}) => fetch('/tasks?'+new URLSearchParams(Object.fromEntries(Object.entries(p).filter(([,v])=>v)))).then(r=>r.json()),
+  get:  (id) => fetch(`/tasks/${id}`).then(r=>r.json()),
+  create:(b) => fetch('/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>{if(!r.ok)return r.json().then(e=>{throw e});return r.json()}),
+  patch: (id,b) => fetch(`/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json()),
+  del:   (id) => fetch(`/tasks/${id}`,{method:'DELETE'}),
+  comment:(id,b)=>fetch(`/tasks/${id}/comments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json()),
+};
 
-  function focusAdd() {
-    document.getElementById("task-title-input").focus();
-  }
+// ── Helpers ────────────────────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function initials(name){return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+function colorFor(name){const h=['#007AFF','#AF52DE','#FF9500','#FF3B30','#5AC8FA','#34C759'];return h[name.charCodeAt(0)%h.length]}
+function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return `${m}/${day}/${y}`}
+function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
 
-  function setFilter(btn, status) {
-    document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentStatus = status;
-    currentPriority = "";
-    const labels = { "": "Daily tasks", "todo": "In progress", "done": "Completed" };
-    document.getElementById("panel-title").textContent = labels[status] || "Daily tasks";
-    render();
-  }
+function highlightMentions(text){return esc(text).replace(/@(\w+)/g,'<span class="comment-mention">@$1</span>')}
 
-  function setFilterByPriority(priority) {
-    currentPriority = currentPriority === priority ? "" : priority;
-    currentStatus = "";
-    document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
-    document.querySelector(".nav-item[data-status='']").classList.add("active");
-    document.getElementById("panel-title").textContent =
-      currentPriority ? currentPriority.charAt(0).toUpperCase() + currentPriority.slice(1) + " priority" : "Daily tasks";
-    render();
-  }
+function statusLabel(s){return {todo:'To Do',in_progress:'In Progress',done:'Done'}[s]||s}
+function statusBadge(s){return `<span class="badge badge-${s}">${statusLabel(s)}</span>`}
+function priorityBadge(p){return `<span class="badge badge-${p}">${p.charAt(0).toUpperCase()+p.slice(1)}</span>`}
 
-  async function fetchAll() {
-    const res = await fetch("/tasks");
-    return res.json();
-  }
+function assigneeAvatar(name){
+  if(!name) return '';
+  return `<div class="assignee-avatar" style="background:${colorFor(name)}" title="${esc(name)}">${initials(name)}</div>`;
+}
 
-  async function fetchFiltered() {
-    const params = new URLSearchParams();
-    if (currentStatus)   params.set("status", currentStatus);
-    if (currentPriority) params.set("priority", currentPriority);
-    if (searchQuery)     params.set("q", searchQuery);
-    const res = await fetch("/tasks?" + params);
-    return res.json();
-  }
+// ── Refresh & sidebar counts ───────────────────────────────────────────────
+async function refresh(skipRender=false){
+  S.all = await api.list();
+  updateSidebar();
+  if(!skipRender) render();
+}
 
-  function esc(str) {
-    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
+function updateSidebar(){
+  const a=S.all;
+  document.getElementById('sb-all').textContent = a.length;
+  document.getElementById('sb-total').textContent = a.length;
+  document.getElementById('sb-todo').textContent = a.filter(t=>t.status==='todo').length;
+  document.getElementById('sb-inprogress').textContent = a.filter(t=>t.status==='in_progress').length;
+  document.getElementById('sb-done').textContent = a.filter(t=>t.status==='done').length;
+  document.getElementById('sb-high').textContent = a.filter(t=>t.priority==='high').length;
+  document.getElementById('sb-medium').textContent = a.filter(t=>t.priority==='medium').length;
+  document.getElementById('sb-low').textContent = a.filter(t=>t.priority==='low').length;
+}
 
-  async function render() {
-    const [all, filtered] = await Promise.all([fetchAll(), fetchFiltered()]);
+function filtered(){
+  let t=[...S.all];
+  if(S.filter.status)   t=t.filter(x=>x.status===S.filter.status);
+  if(S.filter.priority) t=t.filter(x=>x.priority===S.filter.priority);
+  if(S.search){const k=S.search.toLowerCase();t=t.filter(x=>x.title.toLowerCase().includes(k)||x.description.toLowerCase().includes(k)||(x.tags||[]).some(g=>g.toLowerCase().includes(k)))}
+  return t;
+}
 
-    const todo = all.filter(t => t.status === "todo");
-    const done = all.filter(t => t.status === "done");
+// ── View routing ───────────────────────────────────────────────────────────
+function render(){
+  const views={dashboard:renderDashboard,list:renderList,kanban:renderKanban,calendar:renderCalendar};
+  (views[S.view]||renderDashboard)();
+}
 
-    // Sidebar counts
-    document.getElementById("nav-all").textContent  = all.length;
-    document.getElementById("nav-todo").textContent = todo.length;
-    document.getElementById("nav-done").textContent = done.length;
-
-    // Stats
-    document.getElementById("stat-total").textContent = all.length;
-    document.getElementById("stat-todo").textContent  = todo.length;
-    document.getElementById("stat-done").textContent  = done.length;
-
-    // Priority cards
-    document.getElementById("card-high").textContent   = all.filter(t => t.priority==="high").length;
-    document.getElementById("card-medium").textContent = all.filter(t => t.priority==="medium").length;
-    document.getElementById("card-low").textContent    = all.filter(t => t.priority==="low").length;
-
-    // Task list
-    const list = document.getElementById("task-list");
-    if (!filtered.length) {
-      list.innerHTML = `<div class="empty-tasks">No tasks here yet.</div>`;
-      return;
-    }
-
-    list.innerHTML = filtered.map(t => `
-      <div class="task-row ${t.status==="done"?"done":""}" data-id="${t.id}">
-        <div class="status-dot dot-${t.priority}"></div>
-        <div class="task-row-body">
-          <div class="task-row-title">${esc(t.title)}</div>
-          <div class="task-row-meta">${t.due_date ? "📅 "+t.due_date : "No due date"}</div>
-        </div>
-        <span class="status-badge ${t.status==="done"?"badge-done":"badge-todo"}">
-          ${t.status==="done" ? "Done" : "In progress"}
-        </span>
-        <button class="row-check ${t.status==="done"?"checked":""}" onclick="markDone(${t.id})" title="Complete">
-          ${t.status==="done"?"✓":""}
-        </button>
-        <button class="row-delete" onclick="deleteTask(${t.id})" title="Delete">✕</button>
-      </div>
-    `).join("");
-  }
-
-  async function markDone(id) {
-    await fetch(`/tasks/${id}/done`, { method:"PATCH" });
-    render();
-  }
-
-  async function deleteTask(id) {
-    if (!confirm("Delete this task?")) return;
-    await fetch(`/tasks/${id}`, { method:"DELETE" });
-    render();
-  }
-
-  document.getElementById("add-btn").addEventListener("click", async () => {
-    const title    = document.getElementById("task-title-input").value.trim();
-    const due      = document.getElementById("task-due-input").value || null;
-    const priority = document.getElementById("task-priority-input").value;
-    const errEl    = document.getElementById("add-error");
-
-    if (!title) { errEl.textContent = "Title is required."; return; }
-    errEl.textContent = "";
-
-    const res = await fetch("/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, due_date: due, priority }),
-    });
-
-    if (res.ok) {
-      document.getElementById("task-title-input").value = "";
-      document.getElementById("task-due-input").value = "";
-      render();
-    } else {
-      const data = await res.json();
-      errEl.textContent = data.detail || "Error adding task.";
-    }
+function setView(v){
+  S.view=v;
+  document.querySelectorAll('.view-tab').forEach((b,i)=>{
+    b.classList.toggle('active',['dashboard','list','kanban','calendar'][i]===v);
   });
-
-  document.getElementById("task-title-input").addEventListener("keydown", e => {
-    if (e.key === "Enter") document.getElementById("add-btn").click();
+  document.querySelectorAll('.sidebar .nav-btn').forEach((b,i)=>{
+    b.classList.toggle('active',i===['dashboard','list','kanban','calendar'].indexOf(v));
   });
-
-  // Search
-  let searchTimer;
-  document.getElementById("search-input").addEventListener("input", e => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      searchQuery = e.target.value.trim();
-      render();
-    }, 200);
-  });
-
   render();
+}
+
+function setStatusFilter(s){
+  S.filter.status=s;S.filter.priority='';
+  refresh();
+}
+
+function setPriorityFilter(p){
+  S.filter.priority=S.filter.priority===p?'':p;
+  S.filter.status='';
+  refresh();
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const a=S.all,done=a.filter(t=>t.status==='done').length;
+  const pct=a.length?Math.round(done/a.length*100):0;
+  const byPriority=['high','medium','low'].map(p=>{
+    const n=a.filter(t=>t.priority===p).length;
+    const pct2=a.length?Math.round(n/a.length*100):0;
+    const colors={high:'var(--red)',medium:'var(--orange)',low:'var(--green)'};
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+        <span style="font-weight:500;text-transform:capitalize">${p} priority</span>
+        <span style="color:var(--text3)">${n} tasks</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct2}%;background:${colors[p]}"></div></div>
+    </div>`;
+  }).join('');
+
+  const recent=a.slice().sort((a,b)=>b.updated_at.localeCompare(a.updated_at)).slice(0,5);
+  const recentHtml=recent.length?recent.map(t=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sep);cursor:pointer" onclick="openPanel(${t.id})">
+      ${assigneeAvatar(t.assignee)||`<div style="width:26px;height:26px;border-radius:50%;background:var(--fill);flex-shrink:0"></div>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</div>
+        <div style="font-size:11px;color:var(--text3)">${t.due_date?'Due '+fmtDate(t.due_date):''}</div>
+      </div>
+      ${statusBadge(t.status)}
+    </div>`).join('')
+  :`<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center">No tasks yet</div>`;
+
+  document.getElementById('content').innerHTML=`
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-num">${a.length}</div><div class="stat-label">Total Tasks</div></div>
+      <div class="stat-card orange"><div class="stat-num">${a.filter(t=>t.status==='in_progress').length}</div><div class="stat-label">In Progress</div></div>
+      <div class="stat-card green"><div class="stat-num">${done}</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card red"><div class="stat-num">${a.filter(t=>t.priority==='high'&&t.status!=='done').length}</div><div class="stat-label">High Priority Open</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Completion</span><span style="font-size:1.2rem;font-weight:700;color:var(--green)">${pct}%</span></div>
+        <div style="padding:20px">
+          <div class="progress-bar" style="height:12px"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-top:8px">
+            <span>${done} done</span><span>${a.length-done} remaining</span>
+          </div>
+          <div style="margin-top:20px">${byPriority}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Recent Activity</span></div>
+        <div style="padding:0 20px 8px">${recentHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ── List view ──────────────────────────────────────────────────────────────
+function renderList(){
+  const tasks=filtered();
+  const rows=tasks.length?tasks.map(t=>`
+    <tr class="task-row-item ${t.status==='done'?'done-row':''}" onclick="openPanel(${t.id})">
+      <td><div class="check-circle ${t.status==='done'?'checked':''}" onclick="event.stopPropagation();quickDone(${t.id},event)">${t.status==='done'?'✓':''}</div></td>
+      <td>
+        <div style="font-size:14px;font-weight:500">${esc(t.title)}</div>
+        ${t.description?`<div style="font-size:12px;color:var(--text3);margin-top:2px">${esc(t.description.slice(0,60))}${t.description.length>60?'…':''}</div>`:''}
+        ${(t.tags||[]).length?`<div style="margin-top:4px">${t.tags.map(g=>`<span class="tag-chip">${esc(g)}</span>`).join('')}</div>`:''}
+      </td>
+      <td>${assigneeAvatar(t.assignee)}<span style="font-size:12px;color:var(--text3);margin-left:6px">${esc(t.assignee||'—')}</span></td>
+      <td>${priorityBadge(t.priority)}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td style="font-size:12px;color:var(--text3)">${t.due_date?fmtDate(t.due_date):'—'}</td>
+      <td><button onclick="event.stopPropagation();delTask(${t.id})" style="color:var(--text3);font-size:12px;padding:4px 8px;border-radius:6px;transition:all .1s" onmouseover="this.style.color='var(--red)';this.style.background='#FFF0EE'" onmouseout="this.style.color='var(--text3)';this.style.background='none'">Delete</button></td>
+    </tr>`).join('')
+  :`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><div>No tasks found</div></div></td></tr>`;
+
+  document.getElementById('content').innerHTML=`
+    <div class="card">
+      <table class="task-table">
+        <thead><tr>
+          <th></th><th>Task</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── Kanban ─────────────────────────────────────────────────────────────────
+function renderKanban(){
+  const all=filtered();
+  const cols=[
+    {key:'todo',label:'To Do',icon:'○'},
+    {key:'in_progress',label:'In Progress',icon:'◑'},
+    {key:'done',label:'Done',icon:'●'},
+  ];
+
+  const colHtml=cols.map(col=>{
+    const tasks=all.filter(t=>t.status===col.key);
+    const cards=tasks.length?tasks.map(t=>`
+      <div class="kanban-card" draggable="true"
+           ondragstart="dragStart(event,${t.id})"
+           onclick="openPanel(${t.id})">
+        <div class="kanban-card-title">${esc(t.title)}</div>
+        <div class="kanban-card-meta">
+          ${priorityBadge(t.priority)}
+          ${t.due_date?`<span style="font-size:11px;color:var(--text3)">📅 ${fmtDate(t.due_date)}</span>`:''}
+          ${t.assignee?assigneeAvatar(t.assignee):''}
+          ${(t.comments||[]).length?`<span style="font-size:11px;color:var(--text3);margin-left:auto">💬 ${t.comments.length}</span>`:''}
+        </div>
+      </div>`).join('')
+    :`<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:12px">No tasks</div>`;
+
+    return `
+      <div class="kanban-col col-${col.key}"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="dragDrop(event,'${col.key}',this)">
+        <div class="kanban-col-header">
+          <span style="font-size:1rem;color:${col.key==='todo'?'var(--blue)':col.key==='in_progress'?'var(--orange)':'var(--green)'}">${col.icon}</span>
+          <span class="kanban-col-title">${col.label}</span>
+          <span class="kanban-col-count">${tasks.length}</span>
+        </div>
+        ${cards}
+      </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML=`<div class="kanban">${colHtml}</div>`;
+}
+
+function dragStart(e,id){S.draggingId=id;e.dataTransfer.effectAllowed='move'}
+async function dragDrop(e,newStatus,col){
+  e.preventDefault();col.classList.remove('drag-over');
+  if(!S.draggingId)return;
+  await api.patch(S.draggingId,{status:newStatus});
+  S.draggingId=null;
+  await refresh();
+}
+
+// ── Calendar ───────────────────────────────────────────────────────────────
+function renderCalendar(){
+  const d=S.calDate;
+  const y=d.getFullYear(),m=d.getMonth();
+  const monthName=d.toLocaleString('default',{month:'long',year:'numeric'});
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const todayStr=new Date().toISOString().split('T')[0];
+
+  const tasksByDate={};
+  S.all.forEach(t=>{if(t.due_date)(tasksByDate[t.due_date]=tasksByDate[t.due_date]||[]).push(t)});
+
+  const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(n=>`<div class="cal-day-name">${n}</div>`).join('');
+
+  let cells='';
+  for(let i=0;i<first;i++) cells+=`<div class="cal-day other-month"></div>`;
+  for(let day=1;day<=days;day++){
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayTasks=tasksByDate[dateStr]||[];
+    const isToday=dateStr===todayStr;
+    const dots=dayTasks.map(t=>`<span class="cal-dot ${t.priority}"></span>`).join('');
+    cells+=`
+      <div class="cal-day${isToday?' today':''}" onclick="openCalDay('${dateStr}')">
+        <div class="cal-day-num">${day}</div>
+        <div>${dots}</div>
+        ${dayTasks.length>3?`<div style="font-size:10px;color:var(--text3)">+${dayTasks.length-3}</div>`:''}
+      </div>`;
+  }
+
+  document.getElementById('content').innerHTML=`
+    <div class="card" style="padding:24px">
+      <div class="calendar-nav">
+        <button class="cal-arrow" onclick="changeMonth(-1)">‹</button>
+        <span class="cal-month">${monthName}</span>
+        <button class="cal-arrow" onclick="changeMonth(1)">›</button>
+        <button onclick="S.calDate=new Date();renderCalendar()" style="margin-left:auto;font-size:13px;font-weight:600;color:var(--blue);padding:5px 12px;border-radius:var(--r-sm);transition:background .12s" onmouseover="this.style.background='var(--fill)'" onmouseout="this.style.background='none'">Today</button>
+      </div>
+      <div class="cal-grid">${dayNames}${cells}</div>
+    </div>
+    <div id="cal-day-tasks" style="margin-top:20px"></div>`;
+}
+
+function changeMonth(dir){S.calDate=new Date(S.calDate.getFullYear(),S.calDate.getMonth()+dir,1);renderCalendar()}
+
+function openCalDay(dateStr){
+  const tasks=S.all.filter(t=>t.due_date===dateStr);
+  if(!tasks.length)return;
+  const el=document.getElementById('cal-day-tasks');
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-header"><span class="card-title">Tasks due ${fmtDate(dateStr)}</span></div>
+      <div style="padding:0 20px">
+        ${tasks.map(t=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sep);cursor:pointer" onclick="openPanel(${t.id})">
+            <div style="flex:1;font-size:14px;font-weight:500">${esc(t.title)}</div>
+            ${priorityBadge(t.priority)}${statusBadge(t.status)}
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Task Detail Panel ──────────────────────────────────────────────────────
+async function openPanel(id){
+  S.selectedId=id;
+  const t=await api.get(id);
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('panel-id-label').textContent=`#${t.id}`;
+  updatePanelStatusBtn(t.status);
+  renderPanelBody(t);
+}
+
+function closePanel(){
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+  S.selectedId=null;
+}
+
+function updatePanelStatusBtn(status){
+  const btn=document.getElementById('panel-status-btn');
+  btn.textContent=statusLabel(status);
+  btn.style.color=status==='done'?'var(--green)':status==='in_progress'?'var(--orange)':'var(--blue)';
+}
+
+async function cycleStatus(){
+  if(!S.selectedId)return;
+  const t=await api.get(S.selectedId);
+  const cycle={todo:'in_progress',in_progress:'done',done:'todo'};
+  const next=cycle[t.status]||'todo';
+  await api.patch(S.selectedId,{status:next});
+  updatePanelStatusBtn(next);
+  await refresh(true);
+  toast(`Status → ${statusLabel(next)}`);
+}
+
+function renderPanelBody(t){
+  const tagsHtml=(t.tags||[]).map((tag,i)=>`
+    <span class="tag-chip">${esc(tag)}<span class="tag-remove" onclick="removeTag(${i})">✕</span></span>`).join('');
+
+  const commentsHtml=(t.comments||[]).map(c=>`
+    <div class="comment-item">
+      <div class="comment-avatar" style="background:${colorFor(c.author)}">${initials(c.author)}</div>
+      <div class="comment-bubble">
+        <div class="comment-author">${esc(c.author)}</div>
+        <div class="comment-text">${highlightMentions(c.text)}</div>
+        <div class="comment-at">${c.at?.slice(0,10)||''}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('panel-body').innerHTML=`
+    <input class="panel-title-input" id="p-title" value="${esc(t.title)}"/>
+
+    <div class="field-row"><span class="field-label">Priority</span>
+      <select class="panel-select" id="p-priority">
+        <option value="low" ${t.priority==='low'?'selected':''}>🟢 Low</option>
+        <option value="medium" ${t.priority==='medium'?'selected':''}>🟡 Medium</option>
+        <option value="high" ${t.priority==='high'?'selected':''}>🔴 High</option>
+      </select>
+    </div>
+
+    <div class="field-row"><span class="field-label">Assignee</span>
+      <input class="panel-input" id="p-assignee" value="${esc(t.assignee||'')}" placeholder="Assign to…"/>
+    </div>
+
+    <div class="field-row"><span class="field-label">Due Date</span>
+      <input class="panel-input" id="p-due" type="date" value="${t.due_date||''}"/>
+    </div>
+
+    <div>
+      <div class="field-label" style="margin-bottom:8px">Tags</div>
+      <div class="tags-row" id="p-tags-row">
+        ${tagsHtml}
+        <input class="tag-input" id="p-tag-input" placeholder="+ tag" onkeydown="addTagOnEnter(event)"/>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label" style="margin-bottom:8px">Description</div>
+      <textarea class="panel-textarea" id="p-desc">${esc(t.description||'')}</textarea>
+    </div>
+
+    <button class="panel-save-btn" onclick="savePanel()">Save Changes</button>
+    <button class="panel-delete-btn" onclick="delTask(${t.id},true)">Delete Task</button>
+
+    <div class="comments-section">
+      <div class="comments-title">Comments (${(t.comments||[]).length})</div>
+      <div id="comments-list">${commentsHtml||'<div style="color:var(--text3);font-size:13px;padding:8px 0">No comments yet.</div>'}</div>
+      <div class="comment-form">
+        <input class="comment-input" id="c-input" placeholder="Write a comment… use @name to mention" onkeydown="if(event.key==='Enter')submitComment()"/>
+        <button class="comment-submit" onclick="submitComment()">Send</button>
+      </div>
+    </div>`;
+
+  // Store current tags in dataset
+  document.getElementById('panel-body').dataset.tags = JSON.stringify(t.tags||[]);
+}
+
+function addTagOnEnter(e){
+  if(e.key!=='Enter'&&e.key!==',')return;
+  e.preventDefault();
+  const input=document.getElementById('p-tag-input');
+  const val=input.value.trim().replace(/,$/,'');
+  if(!val)return;
+  const body=document.getElementById('panel-body');
+  const tags=JSON.parse(body.dataset.tags||'[]');
+  if(!tags.includes(val)){
+    tags.push(val);
+    body.dataset.tags=JSON.stringify(tags);
+    const chip=document.createElement('span');
+    chip.className='tag-chip';
+    chip.innerHTML=`${esc(val)}<span class="tag-remove" onclick="this.parentElement.remove()">✕</span>`;
+    document.getElementById('p-tags-row').insertBefore(chip,input);
+  }
+  input.value='';
+}
+
+function removeTag(idx){
+  const body=document.getElementById('panel-body');
+  const tags=JSON.parse(body.dataset.tags||'[]');
+  tags.splice(idx,1);
+  body.dataset.tags=JSON.stringify(tags);
+  if(S.selectedId) api.get(S.selectedId).then(t=>{t.tags=tags;renderPanelBody({...t,tags})});
+}
+
+async function savePanel(){
+  if(!S.selectedId)return;
+  const tags=Array.from(document.querySelectorAll('#p-tags-row .tag-chip')).map(el=>el.textContent.replace('✕','').trim()).filter(Boolean);
+  await api.patch(S.selectedId,{
+    title:document.getElementById('p-title').value.trim(),
+    description:document.getElementById('p-desc').value,
+    assignee:document.getElementById('p-assignee').value.trim(),
+    due_date:document.getElementById('p-due').value||null,
+    priority:document.getElementById('p-priority').value,
+    tags,
+  });
+  await refresh(true);
+  toast('Saved ✓');
+}
+
+async function submitComment(){
+  if(!S.selectedId)return;
+  const input=document.getElementById('c-input');
+  const text=input.value.trim();
+  if(!text)return;
+  const comment=await api.comment(S.selectedId,{text,author:'Me'});
+  input.value='';
+  const list=document.getElementById('comments-list');
+  const div=document.createElement('div');
+  div.className='comment-item';
+  div.innerHTML=`
+    <div class="comment-avatar" style="background:${colorFor('Me')}">${initials('Me')}</div>
+    <div class="comment-bubble">
+      <div class="comment-author">Me</div>
+      <div class="comment-text">${highlightMentions(comment.text)}</div>
+      <div class="comment-at">${comment.at?.slice(0,10)||''}</div>
+    </div>`;
+  list.appendChild(div);
+  await refresh(true);
+}
+
+// ── Add modal ──────────────────────────────────────────────────────────────
+function openAddModal(){
+  document.getElementById('add-modal').classList.add('open');
+  document.getElementById('m-title').focus();
+}
+
+function closeAddModal(){
+  document.getElementById('add-modal').classList.remove('open');
+  ['m-title','m-desc','m-assignee','m-tags'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('m-due').value='';
+  document.getElementById('m-priority').value='medium';
+  document.getElementById('m-status').value='todo';
+  document.getElementById('m-error').style.display='none';
+}
+
+async function submitNewTask(){
+  const title=document.getElementById('m-title').value.trim();
+  const errEl=document.getElementById('m-error');
+  if(!title){errEl.textContent='Title is required.';errEl.style.display='block';return}
+  errEl.style.display='none';
+  const tags=document.getElementById('m-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  try{
+    const task=await api.create({
+      title,
+      description:document.getElementById('m-desc').value,
+      assignee:document.getElementById('m-assignee').value.trim(),
+      due_date:document.getElementById('m-due').value||null,
+      priority:document.getElementById('m-priority').value,
+      tags,
+    });
+    // set status separately since create defaults to todo
+    const status=document.getElementById('m-status').value;
+    if(status!=='todo') await api.patch(task.id,{status});
+    closeAddModal();
+    await refresh();
+    toast(`Task created ✓`);
+    scheduleNotification(task);
+  }catch(e){errEl.textContent=e.detail||'Error creating task.';errEl.style.display='block'}
+}
+
+// ── Delete ─────────────────────────────────────────────────────────────────
+async function delTask(id,fromPanel=false){
+  if(!confirm('Delete this task?'))return;
+  await api.del(id);
+  if(fromPanel)closePanel();
+  await refresh();
+  toast('Task deleted');
+}
+
+// ── Quick done (list view checkbox) ───────────────────────────────────────
+async function quickDone(id,e){
+  const t=S.all.find(x=>x.id===id);
+  if(!t)return;
+  const next=t.status==='done'?'todo':'done';
+  await api.patch(id,{status:next});
+  await refresh();
+}
+
+// ── Notifications ──────────────────────────────────────────────────────────
+function toggleNotifPanel(){
+  const p=document.getElementById('notif-panel');
+  p.classList.toggle('open');
+  if(p.classList.contains('open'))renderNotifList();
+}
+
+function renderNotifList(){
+  const today=new Date().toISOString().split('T')[0];
+  const tomorrow=new Date(Date.now()+86400000).toISOString().split('T')[0];
+  const due=S.all.filter(t=>t.status!=='done'&&(t.due_date===today||t.due_date===tomorrow));
+  const list=document.getElementById('notif-list');
+  if(!due.length){list.innerHTML='<div style="padding:16px;color:var(--text3);font-size:13px">No upcoming due tasks</div>';return}
+  list.innerHTML=due.map(t=>`
+    <div class="notif-item">
+      <div class="notif-item-title">${esc(t.title)}</div>
+      <div class="notif-item-sub">${t.due_date===today?'⚠️ Due today':'📅 Due tomorrow'} · ${t.priority} priority</div>
+    </div>`).join('');
+  document.getElementById('notif-dot').style.display='block';
+}
+
+async function toggleNotifications(){
+  const toggle=document.getElementById('notif-toggle');
+  if(!S.notifEnabled){
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){toast('Notification permission denied');return}
+    S.notifEnabled=true;localStorage.setItem('notif','1');
+    toggle.classList.add('on');
+    checkDueTasks();
+    toast('Notifications enabled ✓');
+  }else{
+    S.notifEnabled=false;localStorage.removeItem('notif');
+    toggle.classList.remove('on');
+    toast('Notifications disabled');
+  }
+}
+
+function checkDueTasks(){
+  if(!S.notifEnabled||Notification.permission!=='granted')return;
+  const today=new Date().toISOString().split('T')[0];
+  const tomorrow=new Date(Date.now()+86400000).toISOString().split('T')[0];
+  S.all.forEach(t=>{
+    if(t.status==='done')return;
+    if(t.due_date===today)
+      new Notification('Task due today',{body:t.title,icon:'https://img.icons8.com/fluency/48/checkmark.png'});
+    else if(t.due_date===tomorrow)
+      new Notification('Task due tomorrow',{body:t.title,icon:'https://img.icons8.com/fluency/48/checkmark.png'});
+  });
+}
+
+function scheduleNotification(task){
+  if(!S.notifEnabled||!task.due_date||Notification.permission!=='granted')return;
+  const due=new Date(task.due_date+'T09:00:00');
+  const ms=due-Date.now();
+  if(ms>0&&ms<7*24*60*60*1000)
+    setTimeout(()=>new Notification('Task due today',{body:task.title}),ms);
+}
+
+// ── Close panels on outside click ─────────────────────────────────────────
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('notif-panel');
+  const btn=document.getElementById('notif-btn');
+  if(panel.classList.contains('open')&&!panel.contains(e.target)&&!btn.contains(e.target))
+    panel.classList.remove('open');
+});
+
+document.getElementById('add-modal').addEventListener('click',function(e){
+  if(e.target===this)closeAddModal();
+});
+
+document.getElementById('m-title').addEventListener('keydown',e=>{if(e.key==='Enter')submitNewTask()});
+
+// ── Search ─────────────────────────────────────────────────────────────────
+let searchTimer;
+document.getElementById('search-input').addEventListener('input',e=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{S.search=e.target.value.trim();render()},200);
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+(async()=>{
+  if(S.notifEnabled){
+    document.getElementById('notif-toggle').classList.add('on');
+  }
+  await refresh();
+  setView('dashboard');
+  setTimeout(checkDueTasks,1000);
+})();
 </script>
 </body>
 </html>

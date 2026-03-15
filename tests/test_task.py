@@ -36,4 +36,4 @@ def test_invalid_priority_raises():
 
 def test_invalid_status_raises():
     with pytest.raises(ValueError, match="Invalid status"):
-        Task(id=1, title="Bad task", status="in_progress")
+        Task(id=1, title="Bad task", status="cancelled")
