@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
+VALID_PRIORITIES = {"high", "medium", "low"}
+VALID_STATUSES = {"todo", "done"}
+
 
 @dataclass
 class Task:
@@ -17,6 +20,12 @@ class Task:
     priority: str = "medium"
     created_at: str = field(default_factory=lambda: datetime.now().isoformat(timespec="seconds"))
     updated_at: str = field(default_factory=lambda: datetime.now().isoformat(timespec="seconds"))
+
+    def __post_init__(self):
+        if self.priority not in VALID_PRIORITIES:
+            raise ValueError(f"Invalid priority '{self.priority}'. Must be one of {sorted(VALID_PRIORITIES)}.")
+        if self.status not in VALID_STATUSES:
+            raise ValueError(f"Invalid status '{self.status}'. Must be one of {sorted(VALID_STATUSES)}.")
 
     def to_dict(self) -> dict:
         """Serialize task to a plain dictionary for JSON storage."""

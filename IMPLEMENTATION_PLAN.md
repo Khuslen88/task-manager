@@ -11,18 +11,18 @@
 - [x] Create basic test structure
 
 ## Phase 2: Core Commands
-- [ ] Implement `task add`
-- [ ] Add tests for `task add`
-- [ ] Implement `task list`
-- [ ] Add tests for `task list`
-- [ ] Implement `task done`
-- [ ] Add tests for `task done`
+- [x] Implement `task add`
+- [x] Add tests for `task add`
+- [x] Implement `task list`
+- [x] Add tests for `task list`
+- [x] Implement `task done`
+- [x] Add tests for `task done`
 
 ## Phase 3: Additional Commands
-- [ ] Implement `task delete`
-- [ ] Implement `task edit`
-- [ ] Implement `task search`
-- [ ] Add tests for remaining commands
+- [x] Implement `task delete`
+- [x] Implement `task edit`
+- [x] Implement `task search`
+- [x] Add tests for remaining commands
 
 ## Phase 4: Polish
 - [ ] Add error handling for all edge cases

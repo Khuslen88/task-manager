@@ -1,5 +1,6 @@
 """Tests for Task dataclass."""
 
+import pytest
 from src.task import Task
 
 
@@ -26,3 +27,13 @@ def test_task_from_dict_roundtrip():
     assert restored.title == task.title
     assert restored.priority == task.priority
     assert restored.status == task.status
+
+
+def test_invalid_priority_raises():
+    with pytest.raises(ValueError, match="Invalid priority"):
+        Task(id=1, title="Bad task", priority="urgent")
+
+
+def test_invalid_status_raises():
+    with pytest.raises(ValueError, match="Invalid status"):
+        Task(id=1, title="Bad task", status="in_progress")

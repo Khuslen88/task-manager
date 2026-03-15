@@ -28,13 +28,24 @@ def test_save_and_load_roundtrip():
     assert loaded[0].id == 1
 
 
-def test_next_id_empty():
-    assert storage.next_id([]) == 1
+def test_next_id_starts_at_one():
+    assert storage.next_id() == 1
 
 
-def test_next_id_with_tasks():
-    tasks = [Task(id=1, title="A"), Task(id=3, title="B")]
-    assert storage.next_id(tasks) == 4
+def test_next_id_increments():
+    first = storage.next_id()
+    second = storage.next_id()
+    assert second == first + 1
+
+
+def test_next_id_never_reuses_after_delete():
+    id1 = storage.next_id()
+    tasks = [Task(id=id1, title="A")]
+    storage.save_tasks(tasks)
+    # delete all tasks
+    storage.save_tasks([])
+    id2 = storage.next_id()
+    assert id2 != id1  # counter kept moving even though tasks were deleted
 
 
 def test_save_multiple_tasks():
@@ -43,3 +54,12 @@ def test_save_multiple_tasks():
     loaded = storage.load_tasks()
     assert len(loaded) == 3
     assert [t.id for t in loaded] == [1, 2, 3]
+
+
+def test_atomic_write_produces_valid_file(tmp_path, monkeypatch):
+    fake_path = str(tmp_path / "tasks.json")
+    monkeypatch.setattr(storage, "DATA_FILE", fake_path)
+    storage.save_tasks([Task(id=1, title="Atomic test")])
+    # No .tmp files should remain
+    leftover = [f for f in os.listdir(tmp_path) if f.endswith(".tmp")]
+    assert leftover == []
