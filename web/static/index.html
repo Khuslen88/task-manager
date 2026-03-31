@@ -446,6 +446,7 @@ input,select,textarea{font-family:var(--font);font-size:15px}
         </div>
       </div>
 
+      <button class="icon-btn" title="Export to CSV" onclick="exportCSV()" style="font-size:.85rem;font-weight:600;color:var(--text2);padding:0 10px;width:auto">⬇ CSV</button>
       <button class="add-task-btn" onclick="openAddModal()">＋ New Task</button>
     </div>
   </div>
@@ -1118,6 +1119,33 @@ document.getElementById('search-input').addEventListener('input',e=>{
   clearTimeout(searchTimer);
   searchTimer=setTimeout(()=>{S.search=e.target.value.trim();render()},200);
 });
+
+// ── CSV Export ─────────────────────────────────────────────────────────────
+
+const CSV_HEADERS = ['id','title','description','priority','status','due_date','assignee','created_at'];
+
+// TODO(human): implement buildCsvRow(task)
+// Given a single task object, return one comma-separated string representing
+// that task as a CSV row. The column order must match CSV_HEADERS above.
+//
+// Things to consider:
+//   - Text fields (title, description) may contain commas or quotes — how do
+//     you handle that so the CSV stays valid?
+//   - Some fields (description, assignee, due_date) may be empty strings or
+//     null — what should appear in the CSV cell?
+//   - Return a plain string, no newline at the end.
+
+function exportCSV(){
+  const rows = [CSV_HEADERS.join(',')];
+  S.all.forEach(task => rows.push(buildCsvRow(task)));
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'tasks.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ── Init ───────────────────────────────────────────────────────────────────
 (async()=>{
