@@ -446,6 +446,7 @@ input,select,textarea{font-family:var(--font);font-size:15px}
         </div>
       </div>
 
+      <button class="icon-btn" title="Export to CSV" onclick="exportCSV()" style="font-size:.85rem;font-weight:600;color:var(--text2);padding:0 10px;width:auto">⬇ CSV</button>
       <button class="add-task-btn" onclick="openAddModal()">＋ New Task</button>
     </div>
   </div>
@@ -1118,6 +1119,32 @@ document.getElementById('search-input').addEventListener('input',e=>{
   clearTimeout(searchTimer);
   searchTimer=setTimeout(()=>{S.search=e.target.value.trim();render()},200);
 });
+
+// ── CSV Export ─────────────────────────────────────────────────────────────
+
+const CSV_HEADERS = ['id','title','description','priority','status','due_date','assignee','created_at'];
+
+function buildCsvRow(task){
+  const cell = v => {
+    const s = (v == null || v === '') ? '' : String(v);
+    return /[,"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return [task.id, task.title, task.description, task.priority,
+          task.status, task.due_date||'', task.assignee||'', task.created_at]
+    .map(cell).join(',');
+}
+
+function exportCSV(){
+  const rows = [CSV_HEADERS.join(',')];
+  S.all.forEach(task => rows.push(buildCsvRow(task)));
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'tasks.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ── Init ───────────────────────────────────────────────────────────────────
 (async()=>{
