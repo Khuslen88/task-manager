@@ -617,13 +617,13 @@ function setView(v){
 
 function setStatusFilter(s){
   S.filter.status=s;S.filter.priority='';
-  refresh();
+  setView('list');
 }
 
 function setPriorityFilter(p){
   S.filter.priority=S.filter.priority===p?'':p;
   S.filter.status='';
-  refresh();
+  setView('list');
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
@@ -1117,7 +1117,7 @@ document.getElementById('m-title').addEventListener('keydown',e=>{if(e.key==='En
 let searchTimer;
 document.getElementById('search-input').addEventListener('input',e=>{
   clearTimeout(searchTimer);
-  searchTimer=setTimeout(()=>{S.search=e.target.value.trim();render()},200);
+  searchTimer=setTimeout(()=>{S.search=e.target.value.trim();if(S.search)setView('list');else render();},200);
 });
 
 // ── CSV Export ─────────────────────────────────────────────────────────────
