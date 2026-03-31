@@ -1124,16 +1124,15 @@ document.getElementById('search-input').addEventListener('input',e=>{
 
 const CSV_HEADERS = ['id','title','description','priority','status','due_date','assignee','created_at'];
 
-// TODO(human): implement buildCsvRow(task)
-// Given a single task object, return one comma-separated string representing
-// that task as a CSV row. The column order must match CSV_HEADERS above.
-//
-// Things to consider:
-//   - Text fields (title, description) may contain commas or quotes — how do
-//     you handle that so the CSV stays valid?
-//   - Some fields (description, assignee, due_date) may be empty strings or
-//     null — what should appear in the CSV cell?
-//   - Return a plain string, no newline at the end.
+function buildCsvRow(task){
+  const cell = v => {
+    const s = (v == null || v === '') ? '' : String(v);
+    return /[,"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return [task.id, task.title, task.description, task.priority,
+          task.status, task.due_date||'', task.assignee||'', task.created_at]
+    .map(cell).join(',');
+}
 
 function exportCSV(){
   const rows = [CSV_HEADERS.join(',')];
